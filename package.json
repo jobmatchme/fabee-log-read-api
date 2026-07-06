@@ -1,0 +1,29 @@
+{
+  "name": "@jobmatchme/fabee-log-read-api",
+  "version": "0.1.0",
+  "description": "Read-only HTTP API for fabee-pi-agent session history and run logs.",
+  "type": "module",
+  "bin": {
+    "fabee-log-read-api": "dist/main.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "build": "tsc -p tsconfig.build.json && chmod +x dist/main.js",
+    "start": "node dist/main.js",
+    "build:test": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "rm -rf dist && npm run build:test && node --test dist/**/*.test.js",
+    "check": "npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.19",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "jobmatchme",
+  "license": "MIT"
+}

@@ -41,7 +41,7 @@ async function setupWorkspace(): Promise<string> {
     runFile,
     [
       JSON.stringify({ type: "run.requested", runId: "run-1", sessionId: webSession, timestamp: "2026-07-05T10:00:00.000Z" }),
-      JSON.stringify({ type: "run.completed", runId: "run-1", sessionId: webSession, timestamp: "2026-07-05T10:01:00.000Z" }),
+      JSON.stringify({ type: "run.completed", runId: "run-1", sessionId: webSession, timestamp: "2026-07-05T10:01:00.000Z", usage: { contextTokens: 25481, contextWindow: 372000 }, model: { provider: "openai-codex", id: "gpt-5.6-sol" }, thinkingLevel: "medium" }),
       "",
     ].join("\n"),
     "utf8",
@@ -114,6 +114,9 @@ test("session listing filters by web agent/user prefix and returns runs", async 
   const detail = await requestJson(app, "/sessions/fabee-pi-agent%3Aweb%3Auser-1%3Asession-a?userKey=user-1", "secret-token");
   assert.equal(detail.statusCode, 200);
   assert.equal(detail.body.session.context.length, 1);
+  assert.deepEqual(detail.body.session.latestRun.usage, { contextTokens: 25481, contextWindow: 372000 });
+  assert.deepEqual(detail.body.session.latestRun.model, { provider: "openai-codex", id: "gpt-5.6-sol" });
+  assert.equal(detail.body.session.latestRun.thinkingLevel, "medium");
 
   const runs = await requestJson(app, "/sessions/fabee-pi-agent%3Aweb%3Auser-1%3Asession-a/runs?userKey=user-1", "secret-token");
   assert.equal(runs.statusCode, 200);

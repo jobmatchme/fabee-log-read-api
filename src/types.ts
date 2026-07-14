@@ -16,6 +16,15 @@ export interface RunSummary {
   requestedAt?: string;
   completedAt?: string;
   failedAt?: string;
+  usage?: {
+    contextTokens?: number;
+    contextWindow?: number;
+  };
+  model?: {
+    provider?: string;
+    id?: string;
+  };
+  thinkingLevel?: string;
   parseWarnings: Array<{ line: number; message: string }>;
 }
 
@@ -31,4 +40,5 @@ export interface SessionSummary {
 export interface SessionDetail extends SessionSummary {
   context: unknown[];
   lastPrompt?: unknown;
+  latestRun?: RunSummary;
 }

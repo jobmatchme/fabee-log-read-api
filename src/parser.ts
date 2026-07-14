@@ -14,6 +14,10 @@ function stringValue(value: unknown): string | undefined {
   return undefined;
 }
 
+function numberValue(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 function getPath(obj: JsonObject, path: string[]): unknown {
   let current: unknown = obj;
   for (const segment of path) {
@@ -134,6 +138,21 @@ export async function parseRunLog(filePath: string): Promise<RunSummary> {
     } else if (name === "run.completed") {
       sawCompleted = true;
       if (timestamp) summary.completedAt = timestamp;
+      const usage = asObject(object.usage);
+      if (usage) {
+        summary.usage = {
+          contextTokens: numberValue(usage.contextTokens),
+          contextWindow: numberValue(usage.contextWindow),
+        };
+      }
+      const model = asObject(object.model);
+      if (model) {
+        summary.model = {
+          provider: stringValue(model.provider),
+          id: stringValue(model.id),
+        };
+      }
+      summary.thinkingLevel = stringValue(object.thinkingLevel);
     } else if (name === "run.failed") {
       sawFailed = true;
       if (timestamp) summary.failedAt = timestamp;

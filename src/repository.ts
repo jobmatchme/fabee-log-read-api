@@ -44,7 +44,8 @@ export class LogReadRepository {
     const lastPrompt = (await pathExists(files.lastPromptPath))
       ? JSON.parse(await readFile(files.lastPromptPath, "utf8"))
       : undefined;
-    return { ...summary, context, lastPrompt };
+    const latestRun = runs.sort((a, b) => b.fileMtimeIso.localeCompare(a.fileMtimeIso))[0];
+    return { ...summary, context, lastPrompt, latestRun };
   }
 
   async getSessionRuns(sessionId: string): Promise<RunSummary[] | null> {

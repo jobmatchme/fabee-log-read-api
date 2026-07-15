@@ -216,19 +216,26 @@ export class LogReadRepository {
   }
 
   private addStructuredAuthors(context: unknown[], runs: RunSummary[]): unknown[] {
-    const actors = [...runs]
-      .sort((a, b) => (a.requestedAt ?? "").localeCompare(b.requestedAt ?? ""))
-      .map((run) => run.actor?.email)
-      .filter((email): email is string => Boolean(email));
+    const orderedRuns = [...runs].sort((a, b) => (a.requestedAt ?? "").localeCompare(b.requestedAt ?? ""));
+    let run: RunSummary | undefined;
     let userMessageIndex = 0;
     return context.map((entry) => {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
       const record = entry as Record<string, unknown>;
       const message = record.message;
-      if (!message || typeof message !== "object" || Array.isArray(message) || (message as Record<string, unknown>).role !== "user") return entry;
-      const actorEmail = actors[userMessageIndex++];
-      if (!actorEmail) return entry;
-      return { ...record, message: { ...(message as Record<string, unknown>), authorId: actorEmail, authorName: actorEmail, actor: { email: actorEmail } } };
+      if (!message || typeof message !== "object" || Array.isArray(message)) return entry;
+      const messageRecord = message as Record<string, unknown>;
+      if (messageRecord.role === "user") run = orderedRuns[userMessageIndex++];
+      if (!run || (messageRecord.role !== "user" && messageRecord.role !== "assistant")) return entry;
+      const actorEmail = messageRecord.role === "user" ? run.actor?.email : undefined;
+      return {
+        ...record,
+        message: {
+          ...messageRecord,
+          runId: run.runId,
+          ...(actorEmail ? { authorId: actorEmail, authorName: actorEmail, actor: { email: actorEmail } } : {}),
+        },
+      };
     });
   }
 

@@ -33,7 +33,11 @@ async function setupWorkspace(): Promise<string> {
   await mkdir(join(root, "sessions", otherUserSession), { recursive: true });
   await mkdir(join(root, "sessions", slackSession), { recursive: true });
 
-  await writeFile(join(root, "sessions", webSession, "context.jsonl"), `${JSON.stringify({ type: "message", role: "user" })}\n`, "utf8");
+  await writeFile(join(root, "sessions", webSession, "context.jsonl"), [
+    JSON.stringify({ type: "message", id: "user-1", message: { role: "user", content: "hello" } }),
+    JSON.stringify({ type: "message", id: "assistant-1", message: { role: "assistant", content: "hi" } }),
+    "",
+  ].join("\n"), "utf8");
   await writeFile(join(root, "sessions", webSession, "last_prompt.json"), JSON.stringify({ prompt: "hello" }), "utf8");
   await writeFile(join(root, "sessions", otherUserSession, "context.jsonl"), `${JSON.stringify({ type: "message", role: "user" })}\n`, "utf8");
   await writeFile(join(root, "sessions", slackSession, "context.jsonl"), `${JSON.stringify({ type: "message", role: "user" })}\n`, "utf8");
@@ -42,7 +46,7 @@ async function setupWorkspace(): Promise<string> {
   await writeFile(
     runFile,
     [
-      JSON.stringify({ type: "run.requested", runId: "run-1", sessionId: webSession, timestamp: "2026-07-05T10:00:00.000Z" }),
+      JSON.stringify({ type: "run.requested", runId: "run-1", sessionId: webSession, actor: { email: "alice@jobmatch.me" }, timestamp: "2026-07-05T10:00:00.000Z" }),
       JSON.stringify({ type: "run.completed", runId: "run-1", sessionId: webSession, timestamp: "2026-07-05T10:01:00.000Z", usage: { contextTokens: 25481, contextWindow: 372000 }, model: { provider: "openai-codex", id: "gpt-5.6-sol" }, thinkingLevel: "medium" }),
       "",
     ].join("\n"),
@@ -126,7 +130,10 @@ test("session listing filters by web agent/user prefix and returns runs", async 
 
   const detail = await requestJson(app, "/sessions/fabee-pi-agent%3Aweb%3Auser-1%3Asession-a?userKey=user-1", "secret-token");
   assert.equal(detail.statusCode, 200);
-  assert.equal(detail.body.session.context.length, 1);
+  assert.equal(detail.body.session.context.length, 2);
+  assert.equal(detail.body.session.context[0].message.runId, "run-1");
+  assert.equal(detail.body.session.context[0].message.authorName, "alice@jobmatch.me");
+  assert.equal(detail.body.session.context[1].message.runId, "run-1");
   assert.deepEqual(detail.body.session.latestRun.usage, { contextTokens: 25481, contextWindow: 372000 });
   assert.deepEqual(detail.body.session.latestRun.model, { provider: "openai-codex", id: "gpt-5.6-sol" });
   assert.equal(detail.body.session.latestRun.thinkingLevel, "medium");

@@ -1,6 +1,6 @@
 {
   "name": "@jobmatchme/fabee-session-api",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Internal session, ACL, history, and artifact API for fabee-pi-agent.",
   "type": "module",
   "bin": {

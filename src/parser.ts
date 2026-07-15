@@ -19,23 +19,20 @@ function numberValue(value: unknown): number | undefined {
 }
 
 function artifactFromEvent(object: JsonObject, runId: string, sessionId?: string): ArtifactSummary | undefined {
-  const artifact = asObject(object.artifact) ?? object;
-  const artifactObject = asObject(artifact);
-  if (!artifactObject) return undefined;
-  const artifactId = stringValue(artifactObject.artifactId) ?? stringValue(artifactObject.id);
-  const blobKey = stringValue(artifactObject.blobKey);
-  const resolvedSessionId = stringValue(artifactObject.sessionId) ?? sessionId;
-  const resolvedRunId = stringValue(artifactObject.runId) ?? runId;
+  const artifactId = stringValue(object.artifactId);
+  const blobKey = stringValue(object.blobKey);
+  const resolvedSessionId = stringValue(object.sessionId) ?? sessionId;
+  const resolvedRunId = stringValue(object.runId) ?? runId;
   if (!artifactId || !blobKey || !resolvedSessionId) return undefined;
   return {
     artifactId,
     runId: resolvedRunId,
     sessionId: resolvedSessionId,
     blobKey,
-    name: stringValue(artifactObject.name) ?? stringValue(artifactObject.filename),
-    title: stringValue(artifactObject.title),
-    mimeType: stringValue(artifactObject.mimeType) ?? stringValue(artifactObject.contentType),
-    size: numberValue(artifactObject.size) ?? numberValue(artifactObject.sizeBytes),
+    name: stringValue(object.name),
+    title: stringValue(object.title),
+    mimeType: stringValue(object.mimeType),
+    sizeBytes: numberValue(object.sizeBytes),
   };
 }
 

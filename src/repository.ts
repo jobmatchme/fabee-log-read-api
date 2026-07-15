@@ -10,7 +10,6 @@ interface SessionFiles {
   sessionId: string;
   contextPath: string;
   lastPromptPath: string;
-  metadataPath: string;
 }
 
 interface ScanData {
@@ -148,7 +147,7 @@ export class LogReadRepository {
     const metadataPath = join(this.sessionDir, sessionId, "session.json");
     const contextPath = join(this.sessionDir, sessionId, "context.jsonl");
     if (!(await pathExists(metadataPath)) && !(await pathExists(contextPath))) return null;
-    return { sessionId, contextPath, lastPromptPath: join(this.sessionDir, sessionId, "last_prompt.json"), metadataPath };
+    return { sessionId, contextPath, lastPromptPath: join(this.sessionDir, sessionId, "last_prompt.json") };
   }
 
   private async summaryIfAccessible(files: SessionFiles, actor: string, scan: ScanData): Promise<SessionSummary | null> {

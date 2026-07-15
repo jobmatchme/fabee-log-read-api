@@ -202,7 +202,7 @@ test("artifact metadata is listed and downloads are path-safe", async () => {
   await writeFile(join(root, "artifacts", sessionId, "run-a", "report.txt"), "ok", "utf8");
   await writeFile(join(root, "logs", "run-a.jsonl"), [
     JSON.stringify({ type: "run.requested", runId: "run-a", sessionId, actor: { email: "alice@jobmatch.me" }, prompt: "hello", timestamp: "2026-07-05T10:00:00.000Z" }),
-    JSON.stringify({ type: "artifact.created", runId: "run-a", sessionId, artifactId: "art-1", blobKey: `${sessionId}/run-a/report.txt`, name: "report.txt", mimeType: "text/plain", size: 2 }),
+    JSON.stringify({ type: "artifact.created", runId: "run-a", sessionId, artifactId: "art-1", blobKey: `${sessionId}/run-a/report.txt`, name: "report.txt", mimeType: "text/plain", sizeBytes: 2 }),
     JSON.stringify({ type: "artifact.created", runId: "run-a", sessionId, artifactId: "bad", blobKey: "../secret.txt", name: "bad.txt" }),
     "",
   ].join("\n"), "utf8");
@@ -212,6 +212,7 @@ test("artifact metadata is listed and downloads are path-safe", async () => {
   assert.equal(detail.body.session.runs[0].actor.email, "alice@jobmatch.me");
   assert.equal(detail.body.session.runs[0].prompt, "hello");
   assert.equal(detail.body.session.artifacts.length, 2);
+  assert.equal(detail.body.session.artifacts[0].sizeBytes, 2);
 
   const artifact = await requestJson(app, `/sessions/${sessionId}/artifacts/art-1?actorEmail=bob@jobmatch.me`, "secret-token");
   assert.equal(artifact.statusCode, 200);

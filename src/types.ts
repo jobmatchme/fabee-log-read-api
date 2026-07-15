@@ -64,7 +64,7 @@ export interface ArtifactSummary {
   name?: string;
   title?: string;
   mimeType?: string;
-  size?: number;
+  sizeBytes?: number;
 }
 
 export interface SessionSummary {
